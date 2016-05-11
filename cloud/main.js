@@ -1,12 +1,8 @@
+//var user = request.user; // request.user replaces Parse.User.current()
+//var token = user.getSessionToken(); // get session token from request.user
+//query.find({ sessionToken: token }) // pass the session token to find()
 
-// Use Parse.Cloud.define to define as many cloud functions as you want.
-// For example:
-// Parse.Cloud.define("hello", function(request, response) {
-  // response.success("Hello world!");
-// });
-
-var Stripe = require("stripe");
-Stripe.initialize("sk_test_Dk7KmW7c0h1cJzXFbrbEatY1");
+var stripe = require('stripe')('sk_test_Dk7KmW7c0h1cJzXFbrbEatY1');
 
 var parseCustomer = Parse.Object.extend("Customer")
 
@@ -15,7 +11,7 @@ Parse.Cloud.define("create_customer", function(request, response) {
 	var email = request.params.email
 	console.log(request.params.user)
 	console.log(request.params.username)
-	Stripe.Customers.create({
+	stripe.customers.create({
 		description: username,
 		email: email,
 		source: request.params.token
@@ -36,7 +32,8 @@ Parse.Cloud.define("create_customer", function(request, response) {
 		Parse.Cloud.useMasterKey();
 		var user = Parse.Object.extend("User");
 		var query = new Parse.Query(user);
-		query.get(request.user.id, {
+		var token = request.user.getSessionToken(); // get session token from request.user
+		query.get(request.user.id, {sessionToken: token}, {
   			success: function(user) {
   				newCustomer.save(null, {
   					success: function(newCustomer) {
@@ -53,10 +50,6 @@ Parse.Cloud.define("create_customer", function(request, response) {
   			  	response.error(error)
   			}
 		});
-
-		
-
-		
 	}, function(err, customer) {
 		console.log(err);
 		response.error(err);
@@ -65,24 +58,28 @@ Parse.Cloud.define("create_customer", function(request, response) {
 
 Parse.Cloud.define("get_customer", function(request, response) {
 	var user = request.user
+	var token = user.getSessionToken(); // get session token from request.user
 	var Customer = Parse.Object.extend("Customer")
 	var query = new Parse.Query(Customer);
 	query.equalTo("user", user);
-	query.find({
+	console.log(token)
+	query.find({sessionToken: token, useMasterKey: true,
 		success: function(results) {
+			console.log("success");
+			console.log(results);
 			if (results.length > 0) {
 				var stripeCustomer = results[0]
-				var stripe_id = stripeCustomer.get("stripe_id")
-				Stripe.Customers.retrieve(stripe_id, {
-					success: function(customer) {
+				var stripe_id = stripeCustomer.get("stripe_id");
+				stripe.customers.retrieve(stripe_id).then( 
+					function(customer) {
 						var data = customer.sources.data[0]
 						response.success({ "customer_id": customer.id, "default_source": customer.default_source, "brand": data.brand, "last4": data.last4 })
-					},
-					error: function(err, customer) {
-						console.log(err)
-						response.error(err)
+					}, 
+					function(error) {
+						console.log(error)
+						response.error(error)
 					}
-				});
+				);
 			} else {
 				response.error("No customer exists.");
 			}
@@ -96,21 +93,22 @@ Parse.Cloud.define("get_customer", function(request, response) {
 
 Parse.Cloud.define("check_charge", function(request, response) {
 	var charge = request.params.chargeID
-	Stripe.Charges.retrieve(charge, {
-		success: function(charge) {
+	stripe.charges.retrieve(charge).then(
+		function(charge) {
 			var refunded = charge.refunded
 			var captured = charge.captured
 			response.success({"refunded": refunded, "captured": captured})
 		},
-		error: function(err, charge) {
-			console.log(err)
-			response.error(err)
+		function(error) {
+			console.log(error)
+			repsonse.error(error)
 		}
-	});
+	);
 });
 
 Parse.Cloud.define("charge_customer", function(request, response) {
 	var user = request.user
+	var token = user.getSessionToken(); // get session token from request.user
 	var source = request.params.source
 	var packageID = request.params.packageID
 	var angular = request.params.angular
@@ -120,7 +118,7 @@ Parse.Cloud.define("charge_customer", function(request, response) {
 		var query = new Parse.Query(job);
 		query.include("dormer")
 		query.include("dormer.customer")
-		query.get(jobID, {
+		query.get(jobID, {sessionToken: token}, {
   			success: function(job) {
   				var customer = job.get("dormer").get("customer")
   				var customerID = customer.get("stripe_id")
@@ -151,14 +149,13 @@ function chargeCustomer(hash) {
 				var dormyPackage = results[0]
 				var cost = dormyPackage.get("price")
 
-				Stripe.Charges.create({
+				stripe.charges.create({
 					amount: cost*100,
 					currency: "usd",
 					capture: false,
 					customer: hash.customerID
 					//source: source
-				}, {
-					success: function(charge) {
+				}).then(function(charge) {
 						var status = charge.status
 						if (hash.angular == true) {
 							var charge = charge.id
@@ -183,11 +180,11 @@ function chargeCustomer(hash) {
 							hash.response.success({"status": status, "charge": charge.id})
 						}
 					},
-					error: function(err, charge) {
-						console.log(err)
-						hash.response.error(err)
+					function(error) {
+						console.log(error)
+						hash.response.error(error)
 					}
-				})
+				);
 			}
 		},
 		error: function(error) {
@@ -212,36 +209,15 @@ Parse.Cloud.define("capture_charge", function(request, response) {
 				var stripeSecretKey = "sk_test_Dk7KmW7c0h1cJzXFbrbEatY1"
 				var captureURL  = "https://"+stripeSecretKey+":@api.stripe.com/v1/charges/"+chargeID+"/capture";
 
-				Parse.Cloud.httpRequest({
-                    url: captureURL,
-                    method: 'POST',
-                    success: function(httpResponse) {
-                        console.log(httpResponse.text);
-                        var data = httpResponse.data
-                        response.success({data: data});
-                    },
-                    error: function(httpResponse) {
-                        //console.log('Request failed with response code ' + httpResponse.status);
-                        //console.log(httpResponse.text);
-                        //var data = httpResponse.data
-                        //console.log(charge)
-                        console.log(httpResponse.text)
-                        var error = httpResponse.text
-                        response.error(error);
-                    }
-                });
-				/*
-				Stripe.Charges.capture(chargeID, {
-					success: function(charge) {
-						var status = charge.status
-						response.success(status)
+				stripe.charges.capture(chargeID).then( 
+					function (success) {
+                        response.success({data: success});
 					},
-					error: function(err, charge) {
-						console.log(err)
-						response.error(err)
+					function(error) {
+						console.log(error);
+                        response.error(error);
 					}
-				});
-				*/
+				);
 			} else {
 				response.error("No such job found");
 			}
