@@ -2,6 +2,7 @@
 // compatible API routes.
 
 var express = require('express');
+var S3Adapter = require('parse-server').S3Adapter;
 var ParseServer = require('parse-server').ParseServer;
 var ParseDashboard = require('parse-dashboard');
 var path = require('path');
@@ -19,6 +20,11 @@ var api = new ParseServer({
   masterKey: process.env.MASTER_KEY || '***REMOVED***', //Add your master key here. Keep it secret!
   fileKey: process.env.FILE_KEY || '***REMOVED***', // For migrated apps, this is necessary to provide access to files already hosted on parse.com
   serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse',  // Don't forget to change to https if needed
+  filesAdapter: new S3Adapter(
+    process.env.AWS_ACCESS_KEY_ID || "***REMOVED***",
+    process.env.AWS_SECRET_ACCESS_KEY || "***REMOVED***",
+    process.env.BUCKET_NAME || "***REMOVED***"
+  ),
   liveQuery: {
     classNames: ["Posts", "Comments"] // List of classes to support for query subscriptions
   }
