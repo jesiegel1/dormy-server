@@ -1,6 +1,8 @@
 // Example express application adding the parse-server module to expose Parse
 // compatible API routes.
-require('dotenv').config();
+if (process.env.PRODUCTION != 1) {
+  require('dotenv').config();
+}
 var express = require('express');
 var S3Adapter = require('parse-server').S3Adapter;
 var ParseServer = require('parse-server').ParseServer;
