@@ -41,6 +41,12 @@ var dashboard = new ParseDashboard({
       "masterKey": process.env.MASTER_KEY,
       "appName": "Dormy"
     }
+  ],
+  "users": [
+    {
+      "user":"admin",
+      "pass":"password"
+    },
   ]
 });
 
