@@ -3,6 +3,7 @@
 if (process.env.PRODUCTION != 1) {
   require('dotenv').config();
 }
+
 var express = require('express');
 var S3Adapter = require('parse-server').S3Adapter;
 var ParseServer = require('parse-server').ParseServer;
@@ -70,7 +71,7 @@ app.get('/test', function(req, res) {
 });
 
 var port = process.env.PORT || 1337;
-var httpServer = require('https').createServer(app);
+var httpServer = require('http').createServer(app);
 httpServer.listen(port, function() {
     console.log('parse-server-example running on port ' + port + '.');
 });
