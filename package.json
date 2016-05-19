@@ -14,7 +14,7 @@
     "kerberos": "~0.0.x",
     "parse": "~1.8.0",
     "parse-dashboard": "^1.0.11",
-    "parse-server": "~2.1.4",
+    "parse-server": "^2.1.6",
     "stripe": "^4.6.0"
   },
   "scripts": {
