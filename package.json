@@ -14,12 +14,12 @@
     "kerberos": "~0.0.x",
     "parse": "~1.8.0",
     "parse-dashboard": "^1.0.11",
-    "parse-server": "^2.2.10",
+    "parse-server": "^2.2.9",
     "stripe": "^4.6.0"
   },
   "scripts": {
     "start": "node index.js",
-    "server": "node inex.js"
+    "server": "node index.js"
   },
   "engines": {
     "node": "~5.8.0"
