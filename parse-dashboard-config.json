@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "serverURL": "https://vast-meadow-83839.herokuapp.com/parse",
+      "serverURL": "http://localhost:1337/parse",
       "appId": "egY9RdlgG71mSFb8PraMZA98nS9KX3UXS1vPsSU8",
       "masterKey": "wRWeZQo2WCHpfNUqxiIkJV60zWDlmFfTkaKLTipS",
       "appName": "Dormy"
