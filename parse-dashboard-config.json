@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "serverURL": "http://localhost:1337/parse",
+      "serverURL": "https://sleepy-oasis-56960.herokuapp.com/parse",
       "appId": "egY9RdlgG71mSFb8PraMZA98nS9KX3UXS1vPsSU8",
       "masterKey": "wRWeZQo2WCHpfNUqxiIkJV60zWDlmFfTkaKLTipS",
       "appName": "Dormy"
