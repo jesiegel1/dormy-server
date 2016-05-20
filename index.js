@@ -34,23 +34,6 @@ var api = new ParseServer({
 });
 
 
-var dashboard = new ParseDashboard({
-  "apps": [
-    {
-      "serverURL": process.env.SERVER_URL,
-      "appId": process.env.APP_ID,
-      "masterKey": process.env.MASTER_KEY,
-      "appName": "Dormy"
-    }
-  ],
-  "users": [
-    {
-      "user":"admin",
-      "pass":"password"
-    },
-  ]
-});
-
 
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
 // If you wish you require them, you can set them as options in the initialization above:
@@ -65,7 +48,6 @@ app.use('/public', express.static(path.join(__dirname, '/public')));
 var mountPath = process.env.PARSE_MOUNT || '/parse';
 app.use(mountPath, api);
 
-app.use('/dashboard', dashboard);
 
 // Parse Server plays nicely with the rest of your web routes
 app.get('/', function(req, res) {
