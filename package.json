@@ -18,7 +18,8 @@
     "stripe": "^4.6.0"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "server": "node inex.js"
   },
   "engines": {
     "node": "~5.8.0"
