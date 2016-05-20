@@ -7,7 +7,6 @@ if (process.env.PRODUCTION != 1) {
 var express = require('express');
 var S3Adapter = require('parse-server').S3Adapter;
 var ParseServer = require('parse-server').ParseServer;
-var ParseDashboard = require('parse-dashboard');
 var path = require('path');
 
 var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI
