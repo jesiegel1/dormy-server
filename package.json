@@ -18,7 +18,7 @@
     "stripe": "^4.6.0"
   },
   "scripts": {
-    "start":  "node ./Parse-Dashboard/index.js --config ./Parse-Dashboard/parse-dashboard-config.json --allowInsecureHTTP=1"
+    "start":  "node ./index.js --config ./parse-dashboard-config.json --allowInsecureHTTP=1"
   },
   "engines": {
     "node": "~5.8.0"
